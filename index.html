@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>배낭여행 보드게임</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="start-screen" class="center">
+    <h2>플레이어 이름을 입력하세요</h2>
+    <input type="text" id="player1" placeholder="플레이어 1 이름">
+    <input type="text" id="player2" placeholder="플레이어 2 이름">
+    <button id="start-btn">시작하기</button>
+  </div>
+
+  <div id="game-screen" style="display:none;">
+    <div id="board-container">
+      <canvas id="board" width="600" height="600"></canvas>
+      <div id="dice-area">
+        <div id="dice3d" class="dice" style="width:80px; height:80px;">
+          <div class="face front"></div>
+          <div class="face back"></div>
+          <div class="face right"></div>
+          <div class="face left"></div>
+          <div class="face top"></div>
+          <div class="face bottom"></div>
+        </div>
+        <div id="turn-info"></div>
+      </div>
+      <div id="spot-info" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div id="end-screen" class="center" style="display:none;">
+    <h2 id="winner-msg"></h2>
+    <button id="restart-btn">다시하기</button>
+    <button id="quit-btn">끝내기</button>
+  </div>
+
+  <div id="quit-screen" class="center" style="display:none;">
+    <h2>게임을 종료합니다.</h2>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
