@@ -223,7 +223,7 @@ const boardSpots = [
   
   // 턴 정보 업데이트
   function updateTurnInfo() {
-    turnInfo.innerText = `현재 턴: ${players[currentPlayer].name}`;
+    turnInfo.innerText = `현재 차례: ${players[currentPlayer].name}`;
   }
   
   // 게임 종료
@@ -250,8 +250,8 @@ const boardSpots = [
   
   // 게임 시작
   startBtn.onclick = () => {
-    const name1 = player1Input.value.trim() || "플레이어1";
-    const name2 = player2Input.value.trim() || "플레이어2";
+    const name1 = player1Input.value.trim() || "놀이 참여자1";
+    const name2 = player2Input.value.trim() || "놀이 참여자2";
     players = [
       { name: name1, pos: 0, color: "red", lap: 0, skip: false },
       { name: name2, pos: 0, color: "blue", lap: 0, skip: false }
