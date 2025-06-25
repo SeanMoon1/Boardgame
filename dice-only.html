@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>3D 주사위 굴리기</title>
+  <style>
+    body {
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    h2 {
+      font-size: 3rem;
+      margin-bottom: 60px;
+    }
+    .dice {
+      position: relative;
+      margin: 0 auto 0;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 1s cubic-bezier(.36,1.7,.43,.87);
+      cursor: pointer;
+      width: 400px; height: 400px;
+    }
+    .face {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: #fff;
+      border: 8px solid #333;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .front  { transform: rotateY(0deg) translateZ(200px);}
+    .back   { transform: rotateY(180deg) translateZ(200px);}
+    .right  { transform: rotateY(90deg) translateZ(200px);}
+    .left   { transform: rotateY(-90deg) translateZ(200px);}
+    .top    { transform: rotateX(90deg) translateZ(200px);}
+    .bottom { transform: rotateX(-90deg) translateZ(200px);}
+    .dot {
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+    }
+    #result {
+      font-size: 2.5rem;
+      margin-top: 60px;
+      color: #333;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>3D 주사위 굴리기</h2>
+  <div id="dice3d" class="dice">
+    <div class="face front"></div>
+    <div class="face back"></div>
+    <div class="face right"></div>
+    <div class="face left"></div>
+    <div class="face top"></div>
+    <div class="face bottom"></div>
+  </div>
+  <div id="result">주사위를 클릭하세요!</div>
+  <script>
+    // 각 눈에 해당하는 3D 회전값
+    const dice3dRotations = [
+      {x: 0,   y: 0},    // 1 (front)
+      {x: 90, y: 0},     // 2 (bottom)
+      {x: 0,   y: -90},  // 3 (right)
+      {x: 0,   y: 90},   // 4 (left)
+      {x: -90,  y: 0},   // 5 (top)
+      {x: 0,   y: 180}   // 6 (back)
+    ];
+    // 주사위 눈 점 위치 (400px 기준)
+    const diceDots = [
+      [[200,200]],
+      [[100,100],[300,300]],
+      [[100,100],[200,200],[300,300]],
+      [[100,100],[100,300],[300,100],[300,300]],
+      [[100,100],[100,300],[200,200],[300,100],[300,300]],
+      [[100,100],[100,200],[100,300],[300,100],[300,200],[300,300]]
+    ];
+    // 각 눈(1~6)에 해당하는 색상
+    const dotColors = [
+      '#e53935', // 1: 빨강
+      '#fb8c00', // 2: 주황
+      '#fdd835', // 3: 노랑
+      '#43a047', // 4: 초록
+      '#1e88e5', // 5: 파랑
+      '#8e24aa'  // 6: 보라
+    ];
+    function setDiceFaceDots() {
+      const faces = ['front','back','right','left','top','bottom'];
+      document.querySelectorAll('.face').forEach((face, idx) => {
+        face.innerHTML = '';
+        let dots = [];
+        let color = '#222';
+        switch(faces[idx]) {
+          case 'front':  dots = diceDots[0]; color = dotColors[0]; break; // 1
+          case 'back':   dots = diceDots[5]; color = dotColors[5]; break; // 6
+          case 'right':  dots = diceDots[2]; color = dotColors[2]; break; // 3
+          case 'left':   dots = diceDots[3]; color = dotColors[3]; break; // 4
+          case 'top':    dots = diceDots[4]; color = dotColors[4]; break; // 5
+          case 'bottom': dots = diceDots[1]; color = dotColors[1]; break; // 2
+        }
+        dots.forEach(([cx,cy]) => {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.style.left = (cx-40)+'px';
+          dot.style.top = (cy-40)+'px';
+          dot.style.background = color;
+          face.appendChild(dot);
+        });
+      });
+    }
+    setDiceFaceDots();
+    const dice3d = document.getElementById('dice3d');
+    const resultDiv = document.getElementById('result');
+    function rollDice3D() {
+      // 1~6 랜덤 숫자
+      const roll = Math.floor(Math.random() * 6) + 1;
+      // 3D 회전 애니메이션
+      const extraX = 360 * (2 + Math.floor(Math.random()*2));
+      const extraY = 360 * (2 + Math.floor(Math.random()*2));
+      const rot = dice3dRotations[roll-1];
+      dice3d.style.transform = `rotateX(${rot.x+extraX}deg) rotateY(${rot.y+extraY}deg)`;
+      resultDiv.innerText = '굴리는 중...';
+      setTimeout(() => {
+        resultDiv.innerText = `결과: ${roll}`;
+      }, 1000);
+    }
+    dice3d.addEventListener('click', rollDice3D);
+  </script>
+</body>
+</html> 
