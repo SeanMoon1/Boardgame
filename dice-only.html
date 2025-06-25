@@ -57,7 +57,7 @@
   </style>
 </head>
 <body>
-  <h2>3D 주사위 굴리기</h2>
+  <h2>주사위</h2>
   <div id="dice3d" class="dice">
     <div class="face front"></div>
     <div class="face back"></div>
@@ -66,7 +66,7 @@
     <div class="face top"></div>
     <div class="face bottom"></div>
   </div>
-  <div id="result">주사위를 클릭하세요!</div>
+  <div id="result"></div>
   <script>
     // 각 눈에 해당하는 3D 회전값
     const dice3dRotations = [
@@ -130,10 +130,7 @@
       const extraY = 360 * (2 + Math.floor(Math.random()*2));
       const rot = dice3dRotations[roll-1];
       dice3d.style.transform = `rotateX(${rot.x+extraX}deg) rotateY(${rot.y+extraY}deg)`;
-      resultDiv.innerText = '굴리는 중...';
-      setTimeout(() => {
-        resultDiv.innerText = `결과: ${roll}`;
-      }, 1000);
+      setTimeout(() => 1000);
     }
     dice3d.addEventListener('click', rollDice3D);
   </script>
