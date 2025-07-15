@@ -198,17 +198,31 @@
       setDiceFaceDots();
       const dice3d = document.getElementById("dice3d");
       const resultDiv = document.getElementById("result");
+      let shuffledNumbers = [];
+      let currentIndex = 0;
+
+      function shuffleNumbers() {
+        shuffledNumbers = [1, 2, 3, 4, 5, 6]
+          .sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+      }
+      shuffleNumbers();
+
       function rollDice3D() {
-        // 1~6 랜덤 숫자
-        const roll = Math.floor(Math.random() * 6) + 1;
+        // 중복 없이 1~6에서 하나씩 추출
+        if (currentIndex >= shuffledNumbers.length) {
+          shuffleNumbers();
+        }
+        const roll = shuffledNumbers[currentIndex];
+        currentIndex++;
+
         // 3D 회전 애니메이션
         const extraX = 360 * (2 + Math.floor(Math.random() * 2));
         const extraY = 360 * (2 + Math.floor(Math.random() * 2));
         const rot = dice3dRotations[roll - 1];
         dice3d.style.transform = `rotateX(${rot.x + extraX}deg) rotateY(${rot.y + extraY}deg)`;
-        // ment를 오른쪽에 크게 표시
+
         document.getElementById("ment-result").textContent = "";
-        // 결과를 1초 후에 보여주기 (애니메이션과 동기화)
         setTimeout(() => {
           document.getElementById("ment-result").textContent = ment[roll - 1];
         }, 1000);
