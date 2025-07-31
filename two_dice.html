@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>주사위와 문장 만들기</title>
+    <style>
+      body {
+        background: #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: "Noto Sans KR", sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
+      h2 {
+        font-size: 3rem;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+      .dice {
+        position: relative;
+        transform-style: preserve-3d;
+        transform: rotateX(0deg) rotateY(0deg);
+        transition: transform 1s cubic-bezier(0.36, 1.7, 0.43, 0.87);
+        cursor: pointer;
+        width: 250px;
+        height: 250px;
+        margin: 0 40px;
+      }
+      .face {
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        background: #fff;
+        border: 6px solid #333;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+      .front {
+        transform: rotateY(0deg) translateZ(125px);
+      }
+      .back {
+        transform: rotateY(180deg) translateZ(125px);
+      }
+      .right {
+        transform: rotateY(90deg) translateZ(125px);
+      }
+      .left {
+        transform: rotateY(-90deg) translateZ(125px);
+      }
+      .top {
+        transform: rotateX(90deg) translateZ(125px);
+      }
+      .bottom {
+        transform: rotateX(-90deg) translateZ(125px);
+      }
+      .dot {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #333;
+      }
+      .page-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        max-width: 1200px;
+      }
+      .section {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        padding: 20px;
+      }
+      .section-upper {
+        /* border-bottom: 3px solid #333; */
+      }
+      .dice-result-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 60px;
+      }
+      .result {
+        font-size: 2.5rem;
+        color: #333;
+        font-weight: bold;
+        min-width: 300px;
+        text-align: center;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>문장 말해보기</h2>
+    <div class="page-container">
+      <div class="section section-upper">
+        <div class="dice-result-container">
+          <div id="dice3d-1" class="dice">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face right"></div>
+            <div class="face left"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+          </div>
+          <div id="result-1" class="result"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="dice-result-container">
+          <div id="dice3d-2" class="dice">
+            <div class="face front"></div>
+            <div class="face back"></div>
+            <div class="face right"></div>
+            <div class="face left"></div>
+            <div class="face top"></div>
+            <div class="face bottom"></div>
+          </div>
+          <div id="result-2" class="result"></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // 각 눈에 해당하는 3D 회전값
+      const dice3dRotations = [
+        { x: 0, y: 0 }, // 1 (front)
+        { x: 90, y: 0 }, // 2 (bottom)
+        { x: 0, y: -90 }, // 3 (right)
+        { x: 0, y: 90 }, // 4 (left)
+        { x: -90, y: 0 }, // 5 (top)
+        { x: 0, y: 180 }, // 6 (back)
+      ];
+      
+      // 주사위 눈 점 위치 (250px 기준)
+      const diceDots = [
+        [[125, 125]],
+        [
+          [62.5, 62.5],
+          [187.5, 187.5],
+        ],
+        [
+          [62.5, 62.5],
+          [125, 125],
+          [187.5, 187.5],
+        ],
+        [
+          [62.5, 62.5],
+          [62.5, 187.5],
+          [187.5, 62.5],
+          [187.5, 187.5],
+        ],
+        [
+          [62.5, 62.5],
+          [62.5, 187.5],
+          [125, 125],
+          [187.5, 62.5],
+          [187.5, 187.5],
+        ],
+        [
+          [62.5, 62.5],
+          [62.5, 125],
+          [62.5, 187.5],
+          [187.5, 62.5],
+          [187.5, 125],
+          [187.5, 187.5],
+        ],
+      ];
+      
+      // 각 눈(1~6)에 해당하는 색상
+      const dotColors = [
+        "#e53935", // 1: 빨강
+        "#fb8c00", // 2: 주황
+        "#fdd835", // 3: 노랑
+        "#43a047", // 4: 초록
+        "#1e88e5", // 5: 파랑
+        "#8e24aa", // 6: 보라
+      ];
+      
+      // 1번 주사위 단어들
+      const dice1Words = [
+        "알다", // 1번
+        "만들다", // 2번
+        "살다", // 3번
+        "놀다", // 4번
+        "팔다", // 5번
+        "열다", // 6번
+      ];
+      
+      // 2번 주사위 단어들
+      const dice2Words = [
+        "-아요/어요", // 1번
+        "-습니다/ㅂ니다", // 2번
+        "-았어요/었어요", // 3번
+        "-으세요/세요", // 4번
+        "-으려고/려고 해요", // 5번
+        "-네요", // 6번
+      ];
+
+      function setDiceFaceDots() {
+        const faces = ["front", "back", "right", "left", "top", "bottom"];
+        const diceElements = document.querySelectorAll('.dice');
+        
+        diceElements.forEach(dice => {
+          dice.querySelectorAll(".face").forEach((face, idx) => {
+            face.innerHTML = "";
+            let dots = [];
+            let color = "#222";
+            
+            switch (faces[idx]) {
+              case "front":
+                dots = diceDots[0];
+                color = dotColors[0];
+                break; // 1
+              case "back":
+                dots = diceDots[5];
+                color = dotColors[5];
+                break; // 6
+              case "right":
+                dots = diceDots[2];
+                color = dotColors[2];
+                break; // 3
+              case "left":
+                dots = diceDots[3];
+                color = dotColors[3];
+                break; // 4
+              case "top":
+                dots = diceDots[4];
+                color = dotColors[4];
+                break; // 5
+              case "bottom":
+                dots = diceDots[1];
+                color = dotColors[1];
+                break; // 2
+            }
+            
+            dots.forEach(([cx, cy]) => {
+              const dot = document.createElement("div");
+              dot.className = "dot";
+              dot.style.left = cx - 25 + "px";
+              dot.style.top = cy - 25 + "px";
+              dot.style.background = color;
+              face.appendChild(dot);
+            });
+          });
+        });
+      }
+      
+      setDiceFaceDots();
+      
+      const dice3d1 = document.getElementById("dice3d-1");
+      const dice3d2 = document.getElementById("dice3d-2");
+      const result1Div = document.getElementById("result-1");
+      const result2Div = document.getElementById("result-2");
+      let shuffledNumbers1 = [];
+      let shuffledNumbers2 = [];
+      let currentIndex1 = 0;
+      let currentIndex2 = 0;
+
+      function shuffleNumbers() {
+        shuffledNumbers1 = [1, 2, 3, 4, 5, 6]
+          .sort(() => Math.random() - 0.5);
+        shuffledNumbers2 = [1, 2, 3, 4, 5, 6]
+          .sort(() => Math.random() - 0.5);
+        currentIndex1 = 0;
+        currentIndex2 = 0;
+      }
+      shuffleNumbers();
+
+      function rollDice3D(diceElement, shuffledNumbers, currentIndex) {
+        // 중복 없이 1~6에서 하나씩 추출
+        if (currentIndex >= shuffledNumbers.length) {
+          shuffledNumbers.sort(() => Math.random() - 0.5);
+          currentIndex = 0;
+        }
+        const roll = shuffledNumbers[currentIndex];
+        currentIndex++;
+
+        // 3D 회전 애니메이션
+        const extraX = 360 * (2 + Math.floor(Math.random() * 2));
+        const extraY = 360 * (2 + Math.floor(Math.random() * 2));
+        const rot = dice3dRotations[roll - 1];
+        diceElement.style.transform = `rotateX(${rot.x + extraX}deg) rotateY(${rot.y + extraY}deg)`;
+
+        return { roll, currentIndex };
+      }
+
+      function rollDice1() {
+        const result = rollDice3D(dice3d1, shuffledNumbers1, currentIndex1);
+        currentIndex1 = result.currentIndex;
+        
+        setTimeout(() => {
+          const word1 = dice1Words[result.roll - 1];
+          result1Div.textContent = word1;
+        }, 1000);
+      }
+
+      function rollDice2() {
+        const result = rollDice3D(dice3d2, shuffledNumbers2, currentIndex2);
+        currentIndex2 = result.currentIndex;
+        
+        setTimeout(() => {
+          const word2 = dice2Words[result.roll - 1];
+          result2Div.textContent = word2;
+        }, 1000);
+      }
+
+      dice3d1.addEventListener("click", rollDice1);
+      dice3d2.addEventListener("click", rollDice2);
+    </script>
+  </body>
+</html>
